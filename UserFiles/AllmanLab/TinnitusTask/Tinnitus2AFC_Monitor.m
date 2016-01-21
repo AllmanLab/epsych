@@ -57,6 +57,8 @@ function Tinnitus2AFC_Monitor_OpeningFcn(hObj, e, h, varargin)
 h.output = hObj;
 h.BOXID = varargin{1};
 
+set(h.figure1,'Name',sprintf('Tinnitus Box ID: %d',h.BOXID));
+
 % Update h structure
 guidata(hObj, h);
 
@@ -110,7 +112,12 @@ T = timer('BusyMode','drop', ...
 function BoxTimerSetup(hObj,~,f)
 global AX RUNTIME
 h = guidata(f);
-T = RUNTIME.TRIALS(h.BOXID);
+
+availableBoxes = [RUNTIME.TRIALS.BoxID];
+BOX_IND = availableBoxes==h.BOXID;
+
+
+T = RUNTIME.TRIALS(BOX_IND);
 
 
 % % incuedelay
@@ -172,6 +179,7 @@ set(h.HistoryTable,'Data',HCurrent,'RowName','C','ColumnName',colsH)
 
 % history graph
 cla(h.axHistory);
+
 
 
 

@@ -83,7 +83,7 @@ function BoxTimerSetup(~,~,f)
 h = guidata(f);
 
 % trial history table
-cols = {'Trial Type','Noise re Flash','Response','Hit/Miss'};
+cols = {'Trial Type','Noise Delay','Response','Hit/Miss'};
 
 set(h.history,'Data',{[],[],[],[]},'RowName','0','ColumnName',cols);
 
@@ -176,8 +176,8 @@ RESPONSES(LEFTind)  = {'Left'};
 RESPONSES(~(RIGHTind|LEFTind)) = {'None'};
 
 TRIALTYPE = cell(size(TrialType));
-TRIALTYPE(TrialType == 0) = {'0 - Sync'};
-TRIALTYPE(TrialType == 1) = {'1 - Async'};
+TRIALTYPE(TrialType == 0) = {'0 - AV'};
+TRIALTYPE(TrialType == 1) = {'1 - VA'};
 TRIALTYPE(TrialType == 2) = {'2 - Ambig'};
 
 D = cell(ntrials,4);
