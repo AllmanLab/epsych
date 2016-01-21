@@ -124,17 +124,22 @@ try
 
     schidx(NextTrialID,boxid) = schidx(NextTrialID,boxid) + 1;
     
-    % look for RewardRate parameter
+    % look for RewardRate parameter (Code updated for clarity Jan 2016 DJS)
     rridx = findincell(strfind(TRIALS.writeparams,'RewardRate'));
+    RewardRate = TRIALS.trials{NextTrialID,rridx};
+    
+    
     ttidx = findincell(strfind(TRIALS.writeparams,'TrialType')); %MT
     tt = TRIALS.trials{NextTrialID,ttidx};                              %MT
+    
+    
     if ~isempty(rridx)
         if TRIALS.TrialIndex > 10 % first 10 trials are always rewarded.
             %r = rand <= NextTrialID.trials{NextTrialID,rridx}/100;
-            rw = randi(100,1) <= TRIALS.trials{NextTrialID,rridx};
+            rw = randi(100,1) <= RewardRate;
         else
             if tt == 1 %MT
-                rw = randi(100,1) <= TRIALS.trials{NextTrialID,rridx}; % MT except quiet
+                rw = randi(100,1) <= RewardRate; % MT except quiet
             else  rw = 1;
             end %MT
         end
