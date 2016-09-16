@@ -396,55 +396,6 @@ xlabel(ax,'time (min)');
 
 
 
-
-% % --- Executes on button press in ButtonFeederLeft.
-% function ButtonFeederLeft_Callback(hObject,eventdata, handles)
-% % hObject    handle to ButtonFeederLeft (see GCBO)
-% % eventdata  reserved - to be defined in a future version of MATLAB
-% % handles    structure with handles and user data (see GUIDATA)
-% 
-% global AX
-% %AX.SoftTrg(7); 
-% 
-%  AX.SetTagVal('!ManualLeftFeeder~1',1);
-%  pause(0.001);
-%  AX.SetTagVal('!ManualLeftFeeder~1',0);
-% disp('Box 1: Left Feeder Triggered');
-% 
-% 
-% 
-% % --- Executes on button press in ButtonFeederRight.
-% function ButtonFeederRight_Callback(hObject,eventdata, handles)
-% % hObject    handle to ButtonFeederRight (see GCBO)
-% % eventdata  reserved - to be defined in a future version of MATLAB
-% % handles    structure with handles and user data (see GUIDATA)
-% 
-% global AX
-% 
-%  AX.SetTagVal('!ManualRightFeeder~1',1);
-%  pause(0.001);
-%  AX.SetTagVal('!ManualRightFeeder~1',0);
-%  disp('Box 1: Right Feeder Triggered');
-% 
-% 
-% % --- Executes on button press in ButtonTimeOut.
-% function ButtonTimeOut_Callback(hObject,eventdata, handles)
-% % hObject    handle to ButtonTimeOut (see GCBO)
-% % eventdata  reserved - to be defined in a future version of MATLAB
-% % handles    structure with handles and user data (see GUIDATA)
-% 
-% global AX
-% %AX.SoftTrg(5);
-% 
-% % % New method of triggering an RPvds circuit so it is compatible with
-% % % OpenEx circuits
-%  AX.SetTagVal('!ManualTimeOut~1',1);
-%  pause(0.001);
-%  AX.SetTagVal('!ManualTimeOut~1',0);
-
- 
- 
-
 function ButtonFeederLeft_Callback(hObject, e, h)
 % hObject    handle to ButtonFeederLeft (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
@@ -547,7 +498,7 @@ end
 function ButtonUpdate_Callback(hObj, e, h)
 global AX RUNTIME
 
-T = RUNTIME.TRIALS(h.BOXID);
+%T = RUNTIME.TRIALS(h.BOXID);
 
 set(hObj,'String','UPDATING','BackgroundColor','g'); drawnow
 
@@ -555,18 +506,25 @@ NEWCueDelay   = str2num(get(h.INCueDelay,'String'));
 NEWTimeOut    = str2num(get(h.INTimeOut,'String'));
 NEWRewardRate = str2num(get(h.INRewardRate,'String'));
 
-ind = ismember(T.writeparams,sprintf('CueDelay~%d',h.BOXID));  
-T.trials(:,ind) = {NEWCueDelay};
-T.randparams(ind) = numel(NEWCueDelay) == 2;
-
-ind = ismember(T.writeparams,sprintf('TimeOutDur~%d',h.BOXID));
-T.trials(:,ind) = {NEWTimeOut};
-
-ind = ismember(T.writeparams,sprintf('*RewardRate~%d',h.BOXID));
-T.trials(:,ind) = {NEWRewardRate};
+ind = ismember(RUNTIME.TRIALS(h.BOXID).writeparams,sprintf('CueDelay~%d',h.BOXID));  
+RUNTIME.TRIALS(h.BOXID).trials(:,ind) = {NEWCueDelay};
+%AX.SetTagVal(sprintf('CueDelay~%d',h.BOXID),{NEWCueDelay});
+RUNTIME.TRIALS(h.BOXID).randparams(ind) = numel(NEWCueDelay) == 2;
+% % if numel(NEWCueDelay) == 2
+% %    AX.SetTagVal(sprintf('randparams~%d',h.BOXID),T.randparams(ind)); 
+% % end
 
 
-UpdateRPtags(AX,T);
+ind = ismember(RUNTIME.TRIALS(h.BOXID).writeparams,sprintf('TimeOutDur~%d',h.BOXID));
+RUNTIME.TRIALS(h.BOXID).trials(:,ind) = {NEWTimeOut};
+% AX.SetTagVal(sprintf('TimeOutDur~%d',h.BOXID),{NEWCueDelay});
+
+
+ind = ismember(RUNTIME.TRIALS(h.BOXID).writeparams,sprintf('*RewardRate~%d',h.BOXID));
+RUNTIME.TRIALS(h.BOXID).trials(:,ind) = {NEWRewardRate};
+% AX.SetTagVal(sprintf('*RewardRate~%d',h.BOXID),{NEWCueDelay});
+
+UpdateRPtags(AX,RUNTIME.TRIALS(h.BOXID));
 
 
 
