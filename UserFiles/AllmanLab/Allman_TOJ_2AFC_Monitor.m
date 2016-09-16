@@ -8,11 +8,11 @@ function varargout = Allman_TOJ_2AFC_Monitor(varargin)
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 0;
 gui_State = struct('gui_Name',       mfilename, ...
-                   'gui_Singleton',  gui_Singleton, ...
-                   'gui_OpeningFcn', @Allman_TOJ_2AFC_Monitor_OpeningFcn, ...
-                   'gui_OutputFcn',  @Allman_TOJ_2AFC_Monitor_OutputFcn, ...
-                   'gui_LayoutFcn',  [] , ...
-                   'gui_Callback',   []);
+    'gui_Singleton',  gui_Singleton, ...
+    'gui_OpeningFcn', @Allman_TOJ_2AFC_Monitor_OpeningFcn, ...
+    'gui_OutputFcn',  @Allman_TOJ_2AFC_Monitor_OutputFcn, ...
+    'gui_LayoutFcn',  [] , ...
+    'gui_Callback',   []);
 if nargin && ischar(varargin{1})
     gui_State.gui_Callback = str2func(varargin{1});
 end
@@ -45,7 +45,7 @@ start(T);
 
 
 % --- Outputs from this function are returned to the command line.
-function varargout = Allman_TOJ_2AFC_Monitor_OutputFcn(hObj, e, h) 
+function varargout = Allman_TOJ_2AFC_Monitor_OutputFcn(hObj, e, h)
 varargout{1} = h.output;
 
 
@@ -125,11 +125,20 @@ lastupdate(BOX_IND) = ntrials;
 
 DATA = RUNTIME.TRIALS(BOX_IND).DATA;
 
-TrialType    = [DATA.(sprintf('TrialType_%d',h.BOXID))]';
-NoiseDelay   = [DATA.(sprintf('NoiseDelay_%d',h.BOXID))]';
-FlashDelay   = [DATA.(sprintf('FlashDelay_%d',h.BOXID))]';
-CueDelay     = [DATA.(sprintf('RespWinDelay_%d',h.BOXID))];
-Reward       = [DATA.(sprintf('RewardTrial_%d',h.BOXID))]';
+if RUNTIME.UseOpenEx % using OpenEx
+    TrialType    = [DATA.(sprintf('Stim_TrialType_%d',h.BOXID))]';
+    NoiseDelay   = [DATA.(sprintf('Stim_NoiseDelay_%d',h.BOXID))]';
+    FlashDelay   = [DATA.(sprintf('Stim_FlashDelay_%d',h.BOXID))]';
+    CueDelay     = [DATA.(sprintf('Stim_RespWinDelay_%d',h.BOXID))];
+    Reward       = [DATA.(sprintf('Stim_RewardTrial_%d',h.BOXID))]';
+else
+    TrialType    = [DATA.(sprintf('TrialType_%d',h.BOXID))]';
+    NoiseDelay   = [DATA.(sprintf('NoiseDelay_%d',h.BOXID))]';
+    FlashDelay   = [DATA.(sprintf('FlashDelay_%d',h.BOXID))]';
+    CueDelay     = [DATA.(sprintf('RespWinDelay_%d',h.BOXID))];
+    Reward       = [DATA.(sprintf('RewardTrial_%d',h.BOXID))]';
+end
+
 NoiseReFlash = NoiseDelay - FlashDelay;
 
 
@@ -184,9 +193,9 @@ TRIALTYPE(TrialType == 2) = {'2 - Ambig'};
 
 % Rewawrd or not?
 for n = 1: ntrials
- if strcmp(HITMISS(n),'Miss')|| strcmp(HITMISS(n),'None')
-    Reward(n) = 0;
- end
+    if strcmp(HITMISS(n),'Miss')|| strcmp(HITMISS(n),'None')
+        Reward(n) = 0;
+    end
 end
 
 D = cell(ntrials,6);
@@ -227,10 +236,10 @@ function UpdateAxHistory(ax,TS,HITind,MISSind,ASYNCind,SYNCind,AMBIGind)
 cla(ax)
 
 hold(ax,'on')
- %Hits to Async Trials
+%Hits to Async Trials
 plot(ax,TS(HITind&ASYNCind), ones(sum(HITind&ASYNCind,1)),'go','markerfacecolor','g');
 
- %Misses to Async Trials
+%Misses to Async Trials
 plot(ax,TS(MISSind&ASYNCind), ones(sum(MISSind&ASYNCind,1)),'ro','markerfacecolor','r');
 
 % Hits to Sync Trials
@@ -250,7 +259,7 @@ plot(ax,TS(MISSind&AMBIGind), 0.5*ones(sum(MISSind&AMBIGind,1)),'r<','markerface
 plot(ax,TS(~(HITind|MISSind)&ASYNCind),zeros(sum(~(HITind|MISSind)&ASYNCind,1)), 'rx', ...
     'linewidth',3,'markerfacecolor','r','markersize',8);
 plot(ax,TS(~(HITind|MISSind)&SYNCind),ones(sum(~(HITind|MISSind)&SYNCind,1)), 'rx', ...
-   'linewidth',3,'markerfacecolor','r','markersize',8);
+    'linewidth',3,'markerfacecolor','r','markersize',8);
 plot(ax,TS(~(HITind|MISSind)&AMBIGind),0.5*ones(sum(~(HITind|MISSind)&AMBIGind,1)), 'rx', ...
     'linewidth',3,'markerfacecolor','r','markersize',8);
 hold(ax,'off');
@@ -274,7 +283,7 @@ HitRate = nHits;
 for i = 1:length(uSOA)
     SOAind = SOA == uSOA(i);
     nHits(i) = sum(HITind & SOAind);
-    HitRate(i) = nHits(i) / sum(SOAind); 
+    HitRate(i) = nHits(i) / sum(SOAind);
 end
 
 plot(ax,uSOA,HitRate,'-ok','linewidth',2,'markerfacecolor','k');
@@ -286,14 +295,16 @@ grid(ax(1),'on');
 
 
 function TrigPellet(hObj,~,side) %#ok<DEFNU>
-global AX 
+global AX
 
 h = guidata(hObj);
 
 parstr = sprintf('!%sPellet~%d',side,h.BOXID);
-AX.SetTagVal(parstr,1);
+% AX.SetTagVal(parstr,1);
+TDTpartag(AX,['Stim.' parstr],1);
 pause(0.01);
-AX.SetTagVal(parstr,0);
+% AX.SetTagVal(parstr,0);
+TDTpartag(AX,['Stim.' parstr],0);
 fprintf('Box %d: %s side pellet triggered at %s\n',h.BOXID,side,datestr(now,'HH:MM:SS'))
 
 P = get(hObj,'UserData');
