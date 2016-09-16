@@ -83,7 +83,7 @@ function BoxTimerSetup(~,~,f)
 h = guidata(f);
 
 % trial history table
-cols = {'Trial Type','Noise Delay','Response','Hit/Miss'};
+cols = {'Trial Type','Noise Delay','Response','Hit/Miss','CueDelay','Reward'};
 
 set(h.history,'Data',{[],[],[],[]},'RowName','0','ColumnName',cols);
 
@@ -128,6 +128,8 @@ DATA = RUNTIME.TRIALS(BOX_IND).DATA;
 TrialType    = [DATA.(sprintf('TrialType_%d',h.BOXID))]';
 NoiseDelay   = [DATA.(sprintf('NoiseDelay_%d',h.BOXID))]';
 FlashDelay   = [DATA.(sprintf('FlashDelay_%d',h.BOXID))]';
+CueDelay     = [DATA.(sprintf('RespWinDelay_%d',h.BOXID))];
+Reward       = [DATA.(sprintf('RewardTrial_%d',h.BOXID))]';
 NoiseReFlash = NoiseDelay - FlashDelay;
 
 
@@ -180,12 +182,20 @@ TRIALTYPE(TrialType == 0) = {'0 - AV'};
 TRIALTYPE(TrialType == 1) = {'1 - VA'};
 TRIALTYPE(TrialType == 2) = {'2 - Ambig'};
 
-D = cell(ntrials,4);
+% Rewawrd or not?
+for n = 1: ntrials
+ if strcmp(HITMISS(n),'Miss')|| strcmp(HITMISS(n),'None')
+    Reward(n) = 0;
+ end
+end
+
+D = cell(ntrials,6);
 D(:,1) = TRIALTYPE;
 D(:,2) = num2cell(NoiseReFlash);
 D(:,3) = RESPONSES;
 D(:,4) = HITMISS;
-
+D(:,5) = num2cell(CueDelay);
+D(:,6) = num2cell(Reward);
 
 D = flipud(D);
 
@@ -245,7 +255,7 @@ plot(ax,TS(~(HITind|MISSind)&AMBIGind),0.5*ones(sum(~(HITind|MISSind)&AMBIGind,1
     'linewidth',3,'markerfacecolor','r','markersize',8);
 hold(ax,'off');
 
-set(ax,'ytick',[0 0.5 1],'yticklabel',{'AV','Ambig','VA'},'ylim',[-0.2 1.2],'xlim');
+set(ax,'ytick',[0 0.5 1],'yticklabel',{'VA','Ambig','AV'},'ylim',[-0.2 1.2]);
 
 xlabel(ax,'time (min)');
 
@@ -269,7 +279,7 @@ end
 
 plot(ax,uSOA,HitRate,'-ok','linewidth',2,'markerfacecolor','k');
 set(ax,'ylim',[0 1]);
-xlabel(ax,'SOA (ms) [Noise - Light]');
+xlabel(ax,'SOA (ms)');
 
 grid(ax(1),'on');
 
