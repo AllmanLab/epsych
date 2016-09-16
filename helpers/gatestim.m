@@ -32,6 +32,8 @@ function varargout = gatestim(signal,gate_duration,Fs,varargin)
 % 
 % Daniel.Stolzberg@gmail.com 2015
 
+% Copyright (C) 2016  Daniel Stolzberg, PhD
+
 durflag = isscalar(signal);
 somefunc = @randn;
 gatetype = @triang;
@@ -44,6 +46,7 @@ else
     if nargin > 3, gatetype = varargin{1}; end    
 end
 
+assert(gate_duration <= duration,'gatestim:gate_duration must be shorter than the length of the signal')
 
 gateN = round(gate_duration*Fs);
 if rem(gateN,2), gateN = gateN + 1; end
